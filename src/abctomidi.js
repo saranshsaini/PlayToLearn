@@ -78,7 +78,7 @@ const abctomidimap = {
   "^d'":87,
   "_e'":87,
   "e'":88
-
-
-
 };
+
+
+export default abctomidimap;

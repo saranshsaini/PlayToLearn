@@ -1,11 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SheetMusic from "./SheetMusic";
+import miditoabcmap from "./miditoabc";
 import "./App.css";
 
 export default function MidiInterface() {
   var midi;
   var inputs;
   var outputs;
+  const ENDNOTE = 128;
+  const BEGINNOTE = 144;
+
+  const [note, setNote] = useState("C");
+  const [clef, setClef] = useState("treble");
 
   useEffect(() => {
     connectmidi();
@@ -35,6 +41,18 @@ export default function MidiInterface() {
   function onMIDIMessage(event) {
     console.log(event.data);
     console.log(event.timeStamp);
+    changeNote(event.data);
+  }
+  function changeNote(n) {
+    const note = n[1];
+    if (n[0] === BEGINNOTE && note >= 33 && note <= 88) {
+      if (note < 60) {
+        setClef("bass");
+      } else {
+        setClef("treble");
+      }
+      setNote(miditoabcmap[note]);
+    }
   }
 
   function onMIDIFailure() {
@@ -43,7 +61,7 @@ export default function MidiInterface() {
 
   return (
     <div className="sheetholder">
-      <SheetMusic notes={"K:clef=treble \n L:1/4 \n |^e'"} />
+      <SheetMusic notes={"K:clef=" + clef + " \n L:1/4 \n |" + note} />
     </div>
   );
 }
