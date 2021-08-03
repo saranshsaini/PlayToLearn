@@ -43,7 +43,7 @@ export default function MidiInterface() {
 
   return (
     <div className="sheetholder">
-      <SheetMusic notes={"K:clef=bass \n L:1/4 \n |F,,"} />
+      <SheetMusic notes={"K:clef=treble \n L:1/4 \n |^e'"} />
     </div>
   );
 }

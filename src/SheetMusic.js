@@ -11,7 +11,7 @@ export default function SheetMusic(props) {
       notes,
       { showDebug: ["grid", "box"], scale: 1.7,  }
     );
-  }, []);
+  }, [notes]);
 
   return (
     <div className="sheetmusic_div">
