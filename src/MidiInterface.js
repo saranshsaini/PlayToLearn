@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Game from "./Game";
 import SheetMusic from "./SheetMusic";
 import miditoabcmap from "./miditoabc";
 import "./App.css";
@@ -12,6 +13,7 @@ export default function MidiInterface() {
 
   const [note, setNote] = useState("C");
   const [clef, setClef] = useState("treble");
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     connectmidi();
@@ -40,9 +42,13 @@ export default function MidiInterface() {
 
   function onMIDIMessage(event) {
     console.log(event.data);
-    console.log(event.timeStamp);
     changeNote(event.data);
   }
+
+  function setIndFunc() {
+    setGameOver(true);
+  }
+
   function changeNote(n) {
     const note = n[1];
     if (n[0] === BEGINNOTE && note >= 33 && note <= 88) {
@@ -61,7 +67,11 @@ export default function MidiInterface() {
 
   return (
     <div className="sheetholder">
-      <SheetMusic notes={"K:clef=" + clef + " \n L:1/4 \n |" + note} />
+      {/*<SheetMusic notes={"K:clef=" + clef + " \n L:1/4 \n |" + note} />*/}
+      {!gameOver && (
+        <Game setGameOver={() => setGameOver(true)} inputNote={note} />
+      )}
+      {gameOver && <h1>Over</h1>}
     </div>
   );
 }

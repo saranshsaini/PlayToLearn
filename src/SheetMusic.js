@@ -6,11 +6,7 @@ export default function SheetMusic(props) {
   var notes = props.notes;
 
   var visualObj = useEffect(() => {
-    abcjs.renderAbc(
-      "paper",
-      notes,
-      { showDebug: ["grid", "box"], scale: 1.7,  }
-    );
+    abcjs.renderAbc("paper", notes, { scale: 1.7 });
   }, [notes]);
 
   return (
