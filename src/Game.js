@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SheetMusic from "./SheetMusic";
+import GameData from "./GameData";
 import abctomidimap from "./abctomidi";
 import miditoabcmap from "./miditoabc";
 
@@ -14,16 +15,37 @@ export default function Game(props) {
   const [clef, setClef] = useState("treble");
 
   useEffect(() => {
-      console.log("in effect")
-    if (currInd > 10) {
+    console.log("in effect");
+    console.log("curr ind: ", currInd);
+    //function stuff() {
+    if (gameStarted && notesList.length === 0) {
       setGameOver();
     } else if (inputNote === notesList[currInd]) {
-        console.log("in case")
+      console.log("correct note played: ", inputNote);
       setCurrInd((prev) => prev + 1);
+      console.log("new ind: ", currInd);
+      //const newnotes= notesList.slice(1);
+      //setNotesList(notesList.slice(1));
+      //setNotesList(newnotes)
+      console.log("effect list: ", notesList);
+      //change();
       changeNote(notesList[currInd]);
-      //setNote(notesList[currInd])
+      console.log("new first: ", note);
+      //changeNote("C");
+      //setNote(notesList[0]);
+      //setNote(notesList[currInd])}
     }
-  }, [inputNote, notesList, currInd, setGameOver]);
+    //}stuff();
+    console.log("new ind: ", currInd);
+    console.log("effect list: ", notesList);
+    //rr();
+    //console.log("new first: ", note);
+    //rerender()
+  }, [currInd, gameStarted, notesList, inputNote, setGameOver, note]);
+
+  useEffect(() => {
+    changeNote(notesList[currInd]);
+  });
 
   function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -46,24 +68,19 @@ export default function Game(props) {
   function getNotesList() {
     var n = [];
     for (let i = 0; i < 10; i++) {
-      let rand = getRandomInt(33, 88);
+      let rand = getRandomInt(48, 83);
       let no = miditoabcmap[rand];
       n.push(no);
     }
-    setNotesList(n);
-    
+    return n;
   }
 
   function startGame() {
-    getNotesList();
-    setCurrInd(0);
+    const n = getNotesList();
+    console.log("created new list: ", n);
+    setNotesList(n);
+    setNote(notesList[0]);
     setGameStarted(true);
-
-    changeNote(notesList[2]);
-  }
-  function change(){
-      console.log(notesList)
-      changeNote(notesList[0]);
   }
 
   if (!gameStarted) {
@@ -71,9 +88,11 @@ export default function Game(props) {
   } else {
     return (
       <>
-        <h1>Started Game</h1>
-        <SheetMusic notes={"K:clef=" + clef + " \n L:1/4 \n |" + note} />
-        < button onClick={change}>changeNote</button>
+        <h2>Go!</h2>
+        <div className="gameHolder">
+          <SheetMusic note={note} clef={clef} />
+          <GameData />
+        </div>
       </>
     );
   }

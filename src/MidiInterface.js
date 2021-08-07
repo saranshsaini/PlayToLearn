@@ -13,6 +13,7 @@ export default function MidiInterface() {
 
   const [note, setNote] = useState("C");
   const [clef, setClef] = useState("treble");
+  const [render,setRender]=useState(false)
   const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
@@ -52,14 +53,16 @@ export default function MidiInterface() {
   function changeNote(n) {
     const note = n[1];
     if (n[0] === BEGINNOTE && note >= 33 && note <= 88) {
-      if (note < 60) {
+      /*if (note < 60) {
         setClef("bass");
       } else {
         setClef("treble");
-      }
+      }*/
       setNote(miditoabcmap[note]);
     }
   }
+
+
 
   function onMIDIFailure() {
     console.log("Could not access your MIDI devices.");
@@ -69,7 +72,7 @@ export default function MidiInterface() {
     <div className="sheetholder">
       {/*<SheetMusic notes={"K:clef=" + clef + " \n L:1/4 \n |" + note} />*/}
       {!gameOver && (
-        <Game setGameOver={() => setGameOver(true)} inputNote={note} />
+        <Game setGameOver={() => setGameOver(true)} inputNote={note}  />
       )}
       {gameOver && <h1>Over</h1>}
     </div>
