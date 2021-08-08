@@ -13,3 +13,7 @@ There's a whole lot that can be added to this.
 1. A virtual keyboard in case you don't have a MIDI capable one.
 2. Stopwatch to measure speed along with accuracy.
 3. A bunch of other stuff.
+
+### Tech Used
+
+This app uses abcjs for displaying sheetmusic, and React for everything else. The MIDI input comes from the browser MIDIAccess Web API currently available in Chrome, Edge, and Opera.
