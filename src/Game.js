@@ -6,7 +6,7 @@ import abctomidimap from "./abctomidi";
 import miditoabcmap from "./miditoabc";
 
 export default function Game(props) {
-  const { inputNote, numPressed, changeInput } = props;
+  const { inputNote, numPressed, changeInput, setOver } = props;
   const [gameStarted, setGameStarted] = useState(false);
   const [notesList, setNotesList] = useState([]);
   const [currInd, setCurrInd] = useState(0);
@@ -17,24 +17,18 @@ export default function Game(props) {
   const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
-    console.log("in effect");
-    console.log("curr ind: ", currInd);
-
     if (gameStarted && notesList.length === currInd) {
+      setOver();
       setGameOver(true);
-    } else if (inputNote === notesList[currInd]) {
-      console.log("correct note played: ", inputNote);
+
+      //props.connectMidiFunctions(null);
+    } else if (!gameOver && inputNote === notesList[currInd]) {
       setCurrInd((prev) => prev + 1);
-      console.log("new ind: ", currInd);
+
       changeInput();
 
-      console.log("effect list: ", notesList);
-
       changeNote(notesList[currInd]);
-      console.log("new first: ", note);
     }
-    console.log("new ind: ", currInd);
-    console.log("effect list: ", notesList);
   }, [
     currInd,
     gameStarted,
@@ -42,11 +36,15 @@ export default function Game(props) {
     inputNote,
     setGameOver,
     note,
+    gameOver,
     changeInput,
+    setOver,
   ]);
 
   useEffect(() => {
-    changeNote(notesList[currInd]);
+    if (!gameOver) {
+      changeNote(notesList[currInd]);
+    }
   });
 
   function getRandomInt(min, max) {
@@ -74,7 +72,7 @@ export default function Game(props) {
       let no = miditoabcmap[rand];
       n.push(no);
     }
-    return ["C", "C", "C", "C", "C", "C", "C", "C", "C", "C"];
+    return n;
   }
 
   function startGame() {
@@ -82,10 +80,12 @@ export default function Game(props) {
       return;
     }
     const n = getNotesList();
-    console.log("created new list: ", n);
+    //console.log("created new list: ", n);
     setNotesList(n);
     setNote(notesList[0]);
     setGameStarted(true);
+    setCurrInd(0);
+    props.connectMidi();
   }
 
   function toMainMenu() {
@@ -125,6 +125,8 @@ export default function Game(props) {
       </>
     );
   } else {
-    return <GameData final numPressed={numPressed} total={numNotes} curr={currInd} />;
+    return (
+      <GameData final numPressed={numPressed} total={numNotes} curr={currInd} />
+    );
   }
 }

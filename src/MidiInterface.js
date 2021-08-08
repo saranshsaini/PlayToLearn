@@ -4,10 +4,9 @@ import miditoabcmap from "./miditoabc";
 import "./App.css";
 
 export default function MidiInterface() {
-  var midi;
-  var inputs;
+  
   const BEGINNOTE = 144;
-
+  const [midiInputs, setMidiInputs] = useState();
   const [note, setNote] = useState("");
   const [gameOver, setGameOver] = useState(false);
   const [numPressed, setNumPressed] = useState(0);
@@ -15,38 +14,48 @@ export default function MidiInterface() {
   const [midiAllowed, setMidiAllowed] = useState(true);
 
   useEffect(() => {
-    connectmidi();
+    testMidi();
   }, []);
 
-  function connectmidi() {
+  useEffect(() => {
+    if (midiInputs != null) {
+      connectMidiFunctions(midiInputs, null);
+    }
+  }, [gameOver,midiInputs]);
+
+  function testMidi() {
     if (navigator.requestMIDIAccess) {
       //console.log("This browser supports WebMIDI!");
       setMidiAllowed(true);
-      navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
     } else {
       //console.log("WebMIDI is not supported in this browser.");
       setMidiAllowed(false);
     }
   }
 
-  function onMIDISuccess(midiAccess) {
-    midi = midiAccess;
-    inputs = midiAccess.inputs;
-    setGameAllowed(true);
-    connectMidiFunctions(midi);
+  function connectMidi() {
+    navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
   }
 
-  function connectMidiFunctions() {
-    inputs.forEach((entry) => (entry.onmidimessage = onMIDIMessage));
+  function onMIDISuccess(midiAccess) {
+    setMidiInputs(midiAccess.inputs);
+
+    setGameAllowed(true);
+    connectMidiFunctions(midiAccess.inputs, onMIDIMessage);
+  }
+
+  function connectMidiFunctions(inputs, func) {
+    inputs.forEach((entry) => (entry.onmidimessage = func));
   }
 
   function onMIDIMessage(event) {
-    console.log(event.data);
+    console.log("notes", event.data);
     changeNote(event.data);
   }
 
   function changeNote(n) {
     const note = n[1];
+
     if (n[0] === BEGINNOTE) {
       setNumPressed((prev) => prev + 1);
       setNote(miditoabcmap[note]);
@@ -66,10 +75,10 @@ export default function MidiInterface() {
     <div className="sheetholder">
       {!midiAllowed && (
         <div className="error">
-          <h1>It looks like this browser doesn't allow for midi input...</h1>
+          <h1>It looks like this browser doesn't allow for MIDI input...</h1>
           <p>
-            Currently, only Chrome and Edge have MIDI Input capability supported
-            in the browser.
+            Currently, only Chrome and Edge have MIDI Input capability
+            supported.
           </p>
           <button onClick={refresh}>Try Again</button>
         </div>
@@ -80,15 +89,16 @@ export default function MidiInterface() {
           <button onClick={refresh}>Try Again</button>
         </div>
       )}
-      {midiAllowed && gameAllowed && !gameOver && (
+      {midiAllowed && gameAllowed && (
         <Game
-          setGameOver={() => setGameOver(true)}
+          setOver={() => setGameOver(true)}
           inputNote={note}
           numPressed={numPressed}
-          changeInput={()=>setNote("")}
+          changeInput={() => setNote("")}
+          connectMidi={connectMidi}
+          connectMidiFunctions={connectMidiFunctions}
         />
       )}
-      {gameOver && <h1>Over</h1>}
     </div>
   );
 }
