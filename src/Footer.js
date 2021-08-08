@@ -6,7 +6,7 @@ export default function Footer() {
       <a
         target="_blank"
         rel="noopener noreferrer"
-        href="https://github.com/saranshsaini/PlayToLearn/tree/sourcecode"
+        href="https://github.com/saranshsaini/PlayToLearn/"
       >
         Source Code
       </a>
