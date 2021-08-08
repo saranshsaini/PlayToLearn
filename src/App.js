@@ -1,6 +1,7 @@
 import React from "react";
 import MidiInterface from "./MidiInterface";
 import Header from "./Header";
+import Footer from "./Footer";
 
 
 function App() {
@@ -8,6 +9,7 @@ function App() {
     <>
       <Header />
       <MidiInterface />
+      <Footer />
     </>
   );
 }

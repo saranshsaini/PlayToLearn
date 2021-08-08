@@ -1,47 +1,49 @@
 import React, { useState, useEffect } from "react";
 import SheetMusic from "./SheetMusic";
 import GameData from "./GameData";
+import Instructions from "./Instructions";
 import abctomidimap from "./abctomidi";
 import miditoabcmap from "./miditoabc";
 
 export default function Game(props) {
-  const { inputNote, setGameOver } = props;
-  const ENDNOTE = 128;
-  const BEGINNOTE = 144;
+  const { inputNote, numPressed, changeInput } = props;
   const [gameStarted, setGameStarted] = useState(false);
   const [notesList, setNotesList] = useState([]);
   const [currInd, setCurrInd] = useState(0);
-  const [note, setNote] = useState("C");
+  const [note, setNote] = useState("");
   const [clef, setClef] = useState("treble");
+  const [showModal, setShowModal] = useState("");
+  const [numNotes, setNumNotes] = useState(10);
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     console.log("in effect");
     console.log("curr ind: ", currInd);
-    //function stuff() {
-    if (gameStarted && notesList.length === 0) {
-      setGameOver();
+
+    if (gameStarted && notesList.length === currInd) {
+      setGameOver(true);
     } else if (inputNote === notesList[currInd]) {
       console.log("correct note played: ", inputNote);
       setCurrInd((prev) => prev + 1);
       console.log("new ind: ", currInd);
-      //const newnotes= notesList.slice(1);
-      //setNotesList(notesList.slice(1));
-      //setNotesList(newnotes)
+      changeInput();
+
       console.log("effect list: ", notesList);
-      //change();
+
       changeNote(notesList[currInd]);
       console.log("new first: ", note);
-      //changeNote("C");
-      //setNote(notesList[0]);
-      //setNote(notesList[currInd])}
     }
-    //}stuff();
     console.log("new ind: ", currInd);
     console.log("effect list: ", notesList);
-    //rr();
-    //console.log("new first: ", note);
-    //rerender()
-  }, [currInd, gameStarted, notesList, inputNote, setGameOver, note]);
+  }, [
+    currInd,
+    gameStarted,
+    notesList,
+    inputNote,
+    setGameOver,
+    note,
+    changeInput,
+  ]);
 
   useEffect(() => {
     changeNote(notesList[currInd]);
@@ -55,7 +57,7 @@ export default function Game(props) {
 
   function changeNote(note) {
     const n = abctomidimap[note];
-    if (n >= 33 && n <= 88) {
+    if (true /*n >= 33 && n <= 88*/) {
       if (n < 60) {
         setClef("bass");
       } else {
@@ -67,15 +69,18 @@ export default function Game(props) {
 
   function getNotesList() {
     var n = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < numNotes; i++) {
       let rand = getRandomInt(48, 83);
       let no = miditoabcmap[rand];
       n.push(no);
     }
-    return n;
+    return ["C", "C", "C", "C", "C", "C", "C", "C", "C", "C"];
   }
 
   function startGame() {
+    if (numNotes < 10) {
+      return;
+    }
     const n = getNotesList();
     console.log("created new list: ", n);
     setNotesList(n);
@@ -83,17 +88,43 @@ export default function Game(props) {
     setGameStarted(true);
   }
 
-  if (!gameStarted) {
-    return <button onClick={startGame}>Start Game</button>;
-  } else {
+  function toMainMenu() {
+    setShowModal("");
+    setGameStarted(false);
+  }
+
+  if (!gameStarted && showModal.length === 0) {
+    return (
+      <div className="menuHolder">
+        Number of keys (minimum 10):
+        <input
+          type="number"
+          name="num"
+          value={numNotes}
+          onChange={(e) => setNumNotes(e.target.value)}
+        />
+        <button onClick={startGame}>
+          <h3>Start Game</h3>
+        </button>
+        <button onClick={() => setShowModal("instructions")}>
+          <h3>How to Use</h3>
+        </button>
+      </div>
+    );
+  } else if (!gameStarted && showModal === "instructions") {
+    return <Instructions back={toMainMenu} />;
+  } else if (gameStarted && !gameOver) {
     return (
       <>
-        <h2>Go!</h2>
+        <h2>Start Playing!</h2>
         <div className="gameHolder">
           <SheetMusic note={note} clef={clef} />
-          <GameData />
+          <GameData numPressed={numPressed} total={numNotes} curr={currInd} />
+          <button onClick={toMainMenu}>Back to Main Menu</button>
         </div>
       </>
     );
+  } else {
+    return <GameData final numPressed={numPressed} total={numNotes} curr={currInd} />;
   }
 }
